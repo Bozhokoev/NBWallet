@@ -1,6 +1,6 @@
-package talentlms.api.entity;
+package nbwallet.api.entity;
 
-import talentlms.api.utils.JsonUtils;
+import nbwallet.api.utils.JsonUtils;
 
 public abstract class BaseEntity {
     public String toJson() {

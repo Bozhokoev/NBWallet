@@ -1,10 +1,9 @@
-package talentlms.api.asserts;
+package nbwallet.api.asserts;
 
 import io.restassured.response.Response;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
-import talentlms.api.entity.User;
 
 @Slf4j
 @Getter
@@ -29,7 +28,4 @@ public class ApiAssert {
         return this;
     }
 
-    public UserAssert assertUser(User user) {
-        return UserAssert.assertThat(user);
-    }
 }

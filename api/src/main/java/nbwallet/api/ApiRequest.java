@@ -1,10 +1,11 @@
-package talentlms.api;
+package nbwallet.api;
 
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import talentlms.api.utils.ApiConfigReader;
+import nbwallet.api.utils.ApiConfigReader;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,10 +22,12 @@ public abstract class ApiRequest {
 
     public ApiRequest(String url) {
         this.url = url;
+        String port = ApiConfigReader.getValue("identity.port");
         this.requestSpecification = given()
-                .baseUri(url)
-                .auth()
-                .basic(ApiConfigReader.getValue("apiKey"), "");
+                .baseUri(url + port);
+                // Constructing the base URI correctly
+//                .auth()
+//                .basic(ApiConfigReader.getValue("apiKey"), "");
     }
 
     private void logResponse() {
@@ -69,13 +72,6 @@ public abstract class ApiRequest {
         return this.response;
     }
 
-    //first_name:Akim
-    //last_name:AkimSurname
-    //email:akim@gmail.com
-    //login:akim
-    //password:ABC123abc!@#
-    //status:inactive
-
     protected Response post(String endPoint, Map<String, String> params) {
         log.info("Performed post {}", endPoint);
         log.info("Params is {}", params);
@@ -86,5 +82,4 @@ public abstract class ApiRequest {
         logResponse();
         return this.response;
     }
-
 }

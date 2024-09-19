@@ -1,8 +1,8 @@
-package talentlms.api.asserts;
+package nbwallet.api.asserts;
 
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
-import talentlms.api.entity.BaseEntity;
+import nbwallet.api.entity.BaseEntity;
 
 @Slf4j
 public abstract class EntityAssert {

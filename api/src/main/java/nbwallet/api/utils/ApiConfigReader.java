@@ -1,7 +1,7 @@
-package talentlms.api.utils;
+package nbwallet.api.utils;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class ApiConfigReader {
@@ -13,8 +13,7 @@ public class ApiConfigReader {
 
     static {
         try{
-            String path = "src/main/resources/api.properties";
-            FileInputStream fileInputStream = new FileInputStream(path);
+            InputStream fileInputStream = ApiConfigReader.class.getClassLoader().getResourceAsStream("nbwallet.properties");
             properties = new Properties();
             properties.load(fileInputStream);
             fileInputStream.close();
