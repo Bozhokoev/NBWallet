@@ -2,7 +2,11 @@ package nbwallet.api.controllers;
 
 
 import nbwallet.api.ApiRequest;
-import nbwallet.api.entity.CustomerSignUp;
+import nbwallet.api.entity.customer.CustomerLogin;
+import nbwallet.api.entity.customer.CustomerSignUp;
+import nbwallet.api.entity.customer.account.GetAllAccounts;
+import nbwallet.api.entity.customer.account.RequestAccount;
+
 
 import java.util.HashMap;
 
@@ -15,7 +19,7 @@ public class CustomerController extends ApiRequest {
         super(url);
     }
 
-    public CustomerSignUp signUpCustomer(CustomerSignUp customer){
+    public void signUpCustomer(CustomerSignUp customer){
         HashMap<String, String> params = new HashMap<>(){{
             put("FirstName", customer.getFirstName());
             put("LastName", customer.getLastName());
@@ -23,6 +27,28 @@ public class CustomerController extends ApiRequest {
             put("Email", customer.getEmail());
             put("PhoneNumber", customer.getPhoneNumber());
         }};
-        return super.post(getEndpoint(API, V1, AUTHENTICATION, SIGNUP), params).as(CustomerSignUp.class);
+        super.post(getEndpoint(API, V1, AUTHENTICATION, SIGNUP), params);
+    }
+
+//    public void getTokenCustomer(CustomerLogin customerLogin){
+//        HashMap<String, String> params = new HashMap<>(){{
+//            put("userName", customerLogin.getUserName());
+//            put("password", customerLogin.getPassword());
+//        }};
+//        CustomerToken customerToken = super.post(getEndpoint(API, V1, AUTHENTICATION, LOGIN), params).as(CustomerToken.class);
+//        customerToken.toJson();
+//    }
+
+    public void getTokenCustomer(CustomerLogin customerLogin) {
+        super.post(getEndpoint(API, V1, AUTHENTICATION, LOGIN), customerLogin.toJson());
+    }
+
+    public void createAccount(CustomerLogin customerLogin, RequestAccount account){
+        getTokenCustomer(customerLogin);
+        super.postAuth(getEndpoint(API, V1, ACCOUNT), account.toJson());
+    }
+
+    public GetAllAccounts[] getAllAccounts(){
+        return super.get(getEndpoint(API, V1, ACCOUNT)).as(GetAllAccounts[].class);
     }
 }

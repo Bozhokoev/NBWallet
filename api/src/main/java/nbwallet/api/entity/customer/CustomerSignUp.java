@@ -1,10 +1,11 @@
-package nbwallet.api.entity;
+package nbwallet.api.entity.customer;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import nbwallet.api.entity.BaseEntity;
 
 @Data
 @AllArgsConstructor@NoArgsConstructor
@@ -12,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-public class CustomerSignUp extends BaseEntity{
+public class CustomerSignUp extends BaseEntity {
     @JsonProperty(value = "FirstName")
     String firstName;
     @JsonProperty(value = "LastName")
