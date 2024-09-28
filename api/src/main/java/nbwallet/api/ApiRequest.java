@@ -1,13 +1,13 @@
 package nbwallet.api;
 
 
-import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import nbwallet.api.utils.EnvironmentManager;
+import nbwallet.api.environmentmanager.EndpointFactory;
+import nbwallet.api.environmentmanager.EndpointHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,7 @@ public abstract class ApiRequest {
     protected Response response;
     private static String SLASH = "/";
     private String customerToken;
+    private String managerToken;
 
     public ApiRequest(String url) {
         this.url = url;
@@ -57,28 +58,41 @@ public abstract class ApiRequest {
         ApiRequest.log.info("performed GET {}", endPoint);
         this.response = given()
                 .spec(requestSpecification)
-                .port(EnvironmentManager.getPort(endPoint))
+                .port(getPort(endPoint))
                 .auth().oauth2(customerToken)
-                .accept(ContentType.ANY)
                 .contentType(ContentType.JSON)
                 .get(endPoint);
         logResponse();
-        customerToken = response.jsonPath().getString("jwtToken");
         return this.response;
     }
 
-    protected Response post(String endPoint, String body) {
+    protected Response getManager(String endPoint) {
+        log.info("performed GET {}", endPoint);
+        this.response = given()
+                .spec(requestSpecification)
+                .port(getPort(endPoint))
+                .auth()
+                .oauth2(managerToken)
+                .contentType(ContentType.JSON)
+                .get(endPoint);
+        logResponse();
+        return this.response;
+    }
+
+    protected void post(String endPoint, String body) {
         ApiRequest.log.info("Performed post {}", endPoint);
         ApiRequest.log.info("Body is {}", body);
         this.response = given()
                 .spec(requestSpecification)
-                .port(EnvironmentManager.getPort(endPoint))
+                .port(getPort(endPoint))
                 .contentType(ContentType.JSON)
                 .body(body)
                 .post(endPoint);
         logResponse();
+        if (body.contains("manager")) {
+            managerToken = response.jsonPath().getString("jwtToken");
+        }
         customerToken = response.jsonPath().getString("jwtToken");
-        return this.response;
     }
 
     protected Response post(String endPoint, Map<String, String> params) {
@@ -86,7 +100,7 @@ public abstract class ApiRequest {
         ApiRequest.log.info("Params is {}", params);
         this.response = given()
                 .spec(requestSpecification)
-                .port(EnvironmentManager.getPort(endPoint))
+                .port(getPort(endPoint))
                 .formParams(params)
                 .post(endPoint);
         logResponse();
@@ -98,7 +112,7 @@ public abstract class ApiRequest {
         ApiRequest.log.info("Body is {}", body);
         this.response = given()
                 .spec(requestSpecification)
-                .port(EnvironmentManager.getPort(endPoint))
+                .port(getPort(endPoint))
                 .contentType(ContentType.JSON)
                 .auth()
                 .oauth2(customerToken)
@@ -106,5 +120,88 @@ public abstract class ApiRequest {
                 .post(endPoint);
         logResponse();
         return this.response;
+    }
+
+    protected void postAccountTL(String endPoint, String body) {
+        ApiRequest.log.info("Performed post {}", endPoint);
+        ApiRequest.log.info("Body is {}", body);
+        this.response = given()
+                .spec(requestSpecification)
+                .port(getPort(endPoint))
+                .auth().oauth2(customerToken)
+                .contentType(ContentType.JSON)
+                .body(body)
+                .post(endPoint);
+        logResponse();
+    }
+
+    protected void putAccountTL(String endPoint, String body) {
+        ApiRequest.log.info("Performed post {}", endPoint);
+        ApiRequest.log.info("Body is {}", body);
+        this.response = given()
+                .spec(requestSpecification)
+                .accept("*/*")
+                .port(getPort(endPoint))
+                .auth().oauth2(customerToken)
+                .contentType(ContentType.JSON)
+                .body(body)
+                .put(endPoint);
+        logResponse();
+    }
+
+    protected void deleteAccountTL(String endPoint, int id) {
+        ApiRequest.log.info("Performed post {}", endPoint);
+        String endpointWithId = endPoint + "/" + id;
+        this.response = given()
+                .spec(requestSpecification)
+                .port(getPort(endPoint))
+                .auth().oauth2(customerToken)
+                .delete(endpointWithId);
+        logResponse();
+    }
+
+
+    protected void deleteAccountPlan(String endPoint, int id) {
+        ApiRequest.log.info("Performed post {}", endPoint);
+        String endpointWithId = endPoint + "/" + id;
+        this.response = given()
+                .spec(requestSpecification)
+                .port(getPort(endPoint))
+                .auth().oauth2(managerToken)
+                .delete(endpointWithId);
+        logResponse();
+    }
+    protected Response postBody(String endPoint, String body) {
+        ApiRequest.log.info("Performed post {}", endPoint);
+        ApiRequest.log.info("Body is {}", body);
+        this.response = given()
+                .spec(requestSpecification)
+                .port(getPort(endPoint))
+                .contentType(ContentType.JSON)
+                .auth()
+                .oauth2(managerToken)
+                .body(body)
+                .post(endPoint);
+        logResponse();
+        return this.response;
+    }
+
+    protected void putBodyAndPath(String endPoint, String body) {
+        log.info("Performed post {}", endPoint);
+        log.info("Body is {}", body);
+        this.response = given()
+                .spec(requestSpecification)
+                .port(getPort(endPoint))
+                .auth()
+                .oauth2(managerToken)
+                .contentType(ContentType.JSON)
+                .body(body)
+                .put(endPoint);
+        logResponse();
+    }
+
+    public static int getPort(String endPoint) {
+        EndpointHandler handler = EndpointFactory.getHandler(endPoint);
+        return handler.getPort();
     }
 }

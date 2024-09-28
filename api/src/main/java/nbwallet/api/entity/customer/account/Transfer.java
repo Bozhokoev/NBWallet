@@ -1,9 +1,7 @@
 package nbwallet.api.entity.customer.account;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import nbwallet.api.entity.BaseEntity;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,9 +17,9 @@ import nbwallet.api.entity.BaseEntity;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
-public class AccountTransactionLimit extends BaseEntity {
-     @JsonProperty(value = "isPermanently")
-     boolean isPermanently;
-     int amount;
-     int accountId;
+public class Transfer extends BaseEntity {
+    int amount;
+    String sourceAccountNumber;
+    String destinationAccountNumber;
+    String notes;
 }

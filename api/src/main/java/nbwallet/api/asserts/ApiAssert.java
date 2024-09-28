@@ -3,6 +3,7 @@ package nbwallet.api.asserts;
 import io.restassured.response.Response;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import nbwallet.api.entity.customer.CustomerSignUp;
 import org.assertj.core.api.Assertions;
 
 @Slf4j
@@ -26,6 +27,10 @@ public class ApiAssert {
                 .isEqualTo(expectedStatusCode);
         log.info("Status code is correct {}", expectedStatusCode);
         return this;
+    }
+
+    public CustomerAssert assertCustomer(CustomerSignUp customer){
+        return CustomerAssert.assertThat(customer);
     }
 
 }

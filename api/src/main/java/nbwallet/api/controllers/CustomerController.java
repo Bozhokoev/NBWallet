@@ -1,13 +1,17 @@
 package nbwallet.api.controllers;
 
 
+import io.qameta.allure.Step;
 import nbwallet.api.ApiRequest;
-import nbwallet.api.entity.customer.CustomerLogin;
+import nbwallet.api.asserts.ApiAssert;
 import nbwallet.api.entity.customer.CustomerSignUp;
+import nbwallet.api.entity.customer.Login;
+import nbwallet.api.entity.customer.account.AccountTransactionLimit;
+import nbwallet.api.entity.customer.account.Funds;
 import nbwallet.api.entity.customer.account.GetAllAccounts;
 import nbwallet.api.entity.customer.account.RequestAccount;
-
-
+import nbwallet.api.entity.customer.account.ResponseAccount;
+import nbwallet.api.entity.customer.account.Transfer;
 import java.util.HashMap;
 
 import static nbwallet.api.enums.NBWalletEndPoints.*;
@@ -18,7 +22,7 @@ public class CustomerController extends ApiRequest {
     public CustomerController(String url){
         super(url);
     }
-
+    @Step("Sign up a new customer with provided details {0}")
     public void signUpCustomer(CustomerSignUp customer){
         HashMap<String, String> params = new HashMap<>(){{
             put("FirstName", customer.getFirstName());
@@ -39,16 +43,53 @@ public class CustomerController extends ApiRequest {
 //        customerToken.toJson();
 //    }
 
-    public void getTokenCustomer(CustomerLogin customerLogin) {
+    @Step("Requests an authentication token using the customer's login credentials {0}")
+    public void customerLogin(Login customerLogin) {
         super.post(getEndpoint(API, V1, AUTHENTICATION, LOGIN), customerLogin.toJson());
+        ApiAssert.assertThat(response).isCorrectStatusCode(200);
     }
 
-    public void createAccount(CustomerLogin customerLogin, RequestAccount account){
-        getTokenCustomer(customerLogin);
-        super.postAuth(getEndpoint(API, V1, ACCOUNT), account.toJson());
+    @Step("Create account {0} {1}")
+    public ResponseAccount createAccount(RequestAccount account){
+        return super.postAuth(getEndpoint(API, V1, ACCOUNT), account.toJson()).as(ResponseAccount.class);
     }
 
-    public GetAllAccounts[] getAllAccounts(){
-        return super.get(getEndpoint(API, V1, ACCOUNT)).as(GetAllAccounts[].class);
+    @Step("Get all accounts")
+    public GetAllAccounts getAllAccounts(){
+        return super.get(getEndpoint(API, V1, ACCOUNT)).as(GetAllAccounts.class);
+    }
+
+    @Step("Get all account plans")
+    public GetAllAccounts getAllAccountPlan(){
+        return super.get(getEndpoint(API, V1, ACCOUNT_PLANS)).as(GetAllAccounts.class);
+    }
+
+    @Step ("Set transaction limit for the specified account by id {0}")
+    public void setAccountTransactionLimitById(AccountTransactionLimit account){
+        super.postAccountTL(getEndpoint(API, V1, ACCOUNT_TRANSACTION_LIMIT), account.toJson());
+        ApiAssert.assertThat(response).isCorrectStatusCode(200);
+    }
+
+    public void putAccountTransactionLimitById(AccountTransactionLimit account){
+        super.putAccountTL(getEndpoint(API, V1, ACCOUNT_TRANSACTION_LIMIT), account.toJson());
+        ApiAssert.assertThat(response).isCorrectStatusCode(200);
+    }
+
+    public void deleteAccountTransactionLimitById(AccountTransactionLimit account){
+        int id = account.getAccountId();
+        super.deleteAccountTL(getEndpoint(API, V1, ACCOUNT_TRANSACTION_LIMIT), id);
+    }
+
+    public void getAccountTransactionLimitById(AccountTransactionLimit account){
+        super.get(getEndpoint(API, V1, ACCOUNT_TRANSACTION_LIMIT)).as(AccountTransactionLimit.class);
+    }
+
+    public void addFundsAccountById(Funds funds){
+        super.postAuth(getEndpoint(API, V1, TRANSACTIONS, ADD_FUNDS), funds.toJson());
+        ApiAssert.assertThat(response).isCorrectStatusCode(200);
+    }
+
+    public void transferFunds(Transfer transfer) {
+        super.postAuth(getEndpoint(API, V1, TRANSACTIONS), transfer.toJson());
     }
 }
